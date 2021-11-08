@@ -4,6 +4,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\SessionsController;
 use App\Models\Post;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [PostController::class, 'index'])->name('home');
+Route::get(RouteServiceProvider::HOME, [PostController::class, 'index'])->name('home');
 
 Route::get('/posts', fn () => Post::paginate());
 Route::get('posts/{post:slug}', [PostController::class, 'show'])->name('post');

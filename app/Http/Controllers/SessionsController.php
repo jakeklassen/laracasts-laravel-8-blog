@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
@@ -11,7 +12,7 @@ class SessionsController extends Controller
     {
         Auth::logout();
 
-        return redirect('/')->with('success', 'Goodbye!');
+        return redirect(RouteServiceProvider::HOME)->with('success', 'Goodbye!');
     }
 
     public function create()
@@ -34,6 +35,6 @@ class SessionsController extends Controller
         }
 
         session()->regenerate();
-        return redirect('/')->with('success', 'Welcome back!');
+        return redirect(RouteServiceProvider::HOME)->with('success', 'Welcome back!');
     }
 }

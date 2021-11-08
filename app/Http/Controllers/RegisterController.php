@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule as ValidationRule;
 
@@ -26,6 +27,6 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
-        return redirect('/')->with('success', 'Your account has been created');
+        return redirect(RouteServiceProvider::HOME)->with('success', 'Your account has been created');
     }
 }
