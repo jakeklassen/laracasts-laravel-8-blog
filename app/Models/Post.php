@@ -2,65 +2,54 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\File;
-use Spatie\YamlFrontMatter\YamlFrontMatter;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class Post
+class Post extends Model
 {
-    public function __construct(
-        public string $title,
-        public string $excerpt,
-        public string $date,
-        public string $body,
-        public string $slug
-    ) {
+    use HasFactory;
+
+    // protected $fillable = ['body', 'excerpt', 'title'];
+    protected $guarded = [];
+
+    // Loaded everytime. Cool, but be careful.
+    // protected $with = ['category', 'author'];
+
+    public function scopeFilter(EloquentBuilder $query, array $filters)
+    {
+        $query->when(
+            $filters['search'] ?? false,
+            fn ($query, $search) =>
+            $query
+                // Create a new closure to make the two subsequent conditions
+                // part of a SINGLE where clause
+                ->where(fn ($query) =>
+                $query
+                    ->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('body', 'like', '%' . $search . '%'))
+        );
+
+        $query->when(
+            $filters['category'] ?? false,
+            fn ($query, $category) =>
+            $query->whereHas('category', fn ($query) => $query->where('slug', $category))
+        );
+
+        $query->when(
+            $filters['author'] ?? false,
+            fn ($query, $author) =>
+            $query->whereHas('author', fn ($query) => $query->where('username', $author))
+        );
     }
 
-    public static function all()
+    public function category()
     {
-        // return cache()->rememberForever('posts.all', function () {
-        //     return collect(File::files(resource_path("posts")))
-        //         ->map(fn ($file) => YamlFrontMatter::parseFile($file))
-        //         ->map(
-        //             fn ($document) =>
-        //             new Post(
-        //                 $document->title,
-        //                 $document->excerpt,
-        //                 $document->date,
-        //                 $document->body(),
-        //                 $document->slug
-        //             )
-        //         )->sortByDesc('date');
-        // });
-
-        return collect(File::files(resource_path("posts")))
-            ->map(fn ($file) => YamlFrontMatter::parseFile($file))
-            ->map(
-                fn ($document) =>
-                new Post(
-                    $document->title,
-                    $document->excerpt,
-                    $document->date,
-                    $document->body(),
-                    $document->slug
-                )
-            )->sortByDesc('date');
+        return $this->belongsTo(Category::class);
     }
 
-    public static function find(string $slug): ?Post
+    public function author()
     {
-        return static::all()->firstWhere('slug', $slug);
-    }
-
-    public static function findOrFail(string $slug): Post
-    {
-        $post = static::find($slug);
-
-        if (!$post) {
-            throw new ModelNotFoundException();
-        }
-
-        return $post;
+        return $this->belongsTo(User::class, 'user_id');
     }
 }
