@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PostCommentsController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\RegisterController;
@@ -24,6 +25,8 @@ Route::get(RouteServiceProvider::HOME, [PostController::class, 'index'])->name('
 Route::get('/posts', fn () => Post::paginate());
 Route::get('posts/{post:slug}', [PostController::class, 'show'])->name('post');
 Route::post('posts/{post:slug}/comments', [PostCommentsController::class, 'store']);
+
+Route::post('newsletter', NewsletterController::class);
 
 Route::get('register', [RegisterController::class, 'create'])->middleware('guest');
 Route::post('register', [RegisterController::class, 'store'])->middleware('guest');
