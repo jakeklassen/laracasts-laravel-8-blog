@@ -21,11 +21,21 @@ class DatabaseSeeder extends Seeder
         Category::truncate();
         Post::truncate();
 
+        $thumbnails = collect([
+            'thumbnails/illustration-1.png',
+            'thumbnails/illustration-2.png',
+            'thumbnails/illustration-3.png',
+            'thumbnails/illustration-4.png',
+            'thumbnails/illustration-5.png',
+        ]);
+
         $categories = Category::factory(3)->create();
         User::factory(5)
             ->has(
                 Post::factory([
-                    'category_id' => $categories->random()
+                    // These are repeating! How to fix? Closure?
+                    'category_id' => $categories->random(),
+                    'thumbnail' => $thumbnails->random(),
                 ])
                     ->has(Comment::factory()->count(10))->count(10)
             )
